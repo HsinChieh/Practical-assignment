@@ -7,9 +7,23 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+#Packages
+
+library(tidyverse)
+library(knitr)
+library(skimr)
 ```
 
+## *Hsin-Chieh Tang* **s4647300**
 
+---
+
+# Assignment 2
+
+---
+
+![My photo](images/img_01.jpeg)
 
 ### Part 1: formatting RMarkdown document  (10 marks)
 
@@ -35,7 +49,6 @@ output: html_document
 
 ### Include an photo of yourself (1 mark)
 
-![My photo](images/IMG_7196.jpeg)
 ### 3. List all tasks in the assignment as headings of the third level and include your results (=output) below each task showing your R code. (2 marks)
 
 ### Packages
@@ -116,7 +129,9 @@ thanksgiving2015 %>%
 
 ```{r}
 
+thanksgiving2015 %>% count(gravy)
 
+thanksgiving2015 %>% count(cranberry)
 
 ```
 
@@ -124,7 +139,10 @@ thanksgiving2015 %>%
 
 ```{r}
 
-
+thanksgiving2015 %>% 
+  filter(celebrate=="Yes") %>% 
+  count(family_income) %>% 
+  kable()
 
 ```
 
@@ -140,7 +158,7 @@ thanksgiving2015 %>%
 
 ```{r}
 
-
+#thanksgiving2015 %>% count(pie1~pie13)
 
 ```
 

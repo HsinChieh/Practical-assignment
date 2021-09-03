@@ -12,6 +12,7 @@ library(tidyverse)
 library(knitr)
 library(skimr)
 library(ggplot2)
+library(forcats)
 
 ```
 
@@ -28,7 +29,7 @@ library(ggplot2)
 
 ### Dataset
 
-This dataset is regarding a survey from 1,058 American respondents responses about what they eat on Thanksgiving in 2015. I have named this dataset to `thanksmeals`.
+#### This dataset is regarding a survey from 1,058 American respondents responses about what they eat on Thanksgiving in 2015. I have named this dataset to *thanksmeals*.
 
 ```{r}
 
@@ -42,7 +43,7 @@ For all tables below, you need to use the RMarkdown functionality to present tab
 
 ### 1. Display the first 10 rows of the dataset using RMarkdown
 
-By using `head()`function can display 6 rows of the dataset automatically, I put 10 based on the requirements and used `kable()` to show the results in the table. 
+#### By using `head()`function can display 6 rows of the dataset automatically, I put 10 based on the requirements and used `kable()` to show the results in the table.
 
 ```{r}
 
@@ -51,7 +52,7 @@ head(thanksmeals, 10) %>% kable()
 ```
 ### 2. Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
 
-This question requires us to transform the categorical (character) variables 'family_income' into factor variable. By using `class()` to check character,the next step is to use `parse_number(var_name)`function, which can remove any non-numeric characters before or after the first number. The syntax is **data %>% mutate(var_name = fct_reorder(var_name, parse_number(var_name)))**. Finally, we can use `class()` again and it convert to factor; we can use `skim()`to ckeck as well.
+#### This question requires us to transform the categorical (character) variables 'family_income' into factor variable. By using `class()` to check character,the next step is to use `parse_number(var_name)`function, which can remove any non-numeric characters before or after the first number. The syntax is **data %>% mutate(var_name = fct_reorder(var_name, parse_number(var_name)))**. Finally, we can use `class()` again and it convert to factor; we can use `skim()`to ckeck as well.
 
 ```{r}
 
@@ -68,7 +69,7 @@ skim(family_income)
 
 ### 3. Generate the general statistics of the dataset using `summary()` and `skim()` function (2 mark).
 
-Both `summary()` and `skim()` function can see the summary statistics of the dataset. The difference I noticed is that`summary()` shows class and mode for every variable separately, and `skim()` shows the missing value and compares each variable together.
+#### Both `summary()` and `skim()` function can see the summary statistics of the dataset. The difference I noticed is that`summary()` shows class and mode for every variable separately, and `skim()` shows the missing value and compares each variable together.
 
 ```{r}
 
@@ -79,7 +80,7 @@ skim(thanksmeals)
 ```
 ### 4. What is the number of people who celebrate?
 
-By using `filter()`function, we can only filter the value we want. In the dataset, There are "Yes" and "No" in the variable of celebrate, so I put `filter(celebrate == "Yes")` and `count()` the number of celebrate.
+#### By using `filter()`function, we can only filter the value we want. In the dataset, There are "Yes" and "No" in the variable of celebrate, so I put `filter(celebrate == "Yes")` and `count()` the number of celebrate.
 
 ```{r}
 
@@ -92,7 +93,7 @@ thanksmeals %>%
 
 ### 5. What are categories and stats for each main dish served and the method it is prepared?
 
-I used `count()` and `filter()` to get the results. Firstly, I count the total number for each main_dish and main_prep. Then, I use filter to deselect value which are "na", "Other (please specify)" because I think this kind of values cannot belong to any count. 
+#### I used `count()` and `filter()` to get the results. Firstly, I count the total number for each main_dish and main_prep. Then, I use filter to deselect value which are "na", "Other (please specify)" because I think this kind of values cannot belong to any count. 
 
 ```{r}
 
@@ -109,9 +110,8 @@ thanksmeals %>%
 
 ### 6. Create a data viz showing this in the most evident way. Provide your own legend and use themes.
 
-From the result of Q5, there are three variables (main_dish, main_prep, n). I did 
+#### From the result of Q5, there are three variables (main_dish, main_prep, n). I create bar chart to show the count of prepared method for each main dish since main prep= discrete and count number= continuous. 
 
-write something second 2 is better
 
 ```{r}
 
@@ -121,34 +121,19 @@ thanksmeals %>%
          !main_dish %in% c("Other (please specify)", "I don't know"),
          !main_prep %in% c("Other (please specify)", "I don't know"))%>% 
   count(main_dish, main_prep) %>% 
-  mutate(main_prep =fct_lump(main_prep, n=5),
+  mutate(main_prep = fct_lump(main_prep, n=5),
          main_prep = fct_reorder(main_prep, n)) %>% 
   ggplot(aes(main_prep, n, fill = main_dish)) +
   geom_col() +
   coord_flip() +
   theme_bw() +
   labs(x="Prepared Methods", y="Count", title="Main Dish Prepared Methods Distribution", fill= "Main Dish", caption = "Image 1:Bar Graph")
-
-thanksmeals %>% 
-  filter(!is.na(main_prep),
-         !is.na(main_dish),
-         !main_dish %in% c("Other (please specify)", "I don't know"),
-         !main_prep %in% c("Other (please specify)", "I don't know"))%>% 
-  count(main_dish, main_prep) %>% 
-  mutate(main_dish =fct_lump(main_dish, n=5),
-         main_prep = fct_reorder(main_prep, n)) %>% 
-  ggplot(aes(main_prep, n, fill = main_dish)) +
-  geom_col() +
-  coord_flip() +
-  theme_bw() +
-  labs(x="Prepared Methods", y="Count", title="Main Dish Prepared Methods Distribution", fill= "Main Dish", caption = "Image 1:Bar Graph")
-
 
 ```
 
 ### 7. How many use cranberry sauce? How many use gravy?
 
-For gravy sauce, there are two types of values, so it is easy to use `filter()` and then count the number. For cranberry sauce, there are many types of values, such as other (please specify), homemade, canned and na; therefore, I used filter to deselect na values, but I keep other (please specify) because respondents put the answer in cranberry_other, which belong to the use of cranberry sauce. Then, I count the number and add all count.
+#### For gravy sauce, there are two types of values, so it is easy to use `filter()` and then count the number. For cranberry sauce, there are many types of values, such as other (please specify), homemade, canned and na; therefore, I used filter to deselect na values, but I keep other (please specify) because respondents put the answer in cranberry_other, which belong to the use of cranberry sauce. Then, I count the number and add all count.
 
 ```{r}
 
@@ -173,7 +158,7 @@ thanksmeals %>%
 
 ### 8. What is the distribution of those who celebrate across income ranges
 
-In this question, I need to count the variables of family_income with people celebrate. To get the results, I used `group_by()` to group celebrate first, used `filter()` to filter the variables I want, count the family_income and make them in order, and finally used`ungroup()` to avoid messing the dataset.
+#### In this question, I need to count the variables of family_income with people celebrate. To get the results, I used `group_by()` to group celebrate first, used `filter()` to filter the variables I want, count the family_income and make them in order, and finally used`ungroup()` to avoid messing the dataset.
 
 ```{r}
 
@@ -190,7 +175,7 @@ thanksmeals %>%
 
 ### 9. Present this information in the most evident way on the data viz.
 
-I want to create bar chart to show the count for different family income. Most steps at first are the same with Q8. Then, I use `fct_reorder() `to reorder the factor(family_income) level, and I also put `coord_flip()`to avoid the messy of x names. 
+#### I want to create bar chart to show the count for different family income. Most steps at first are the same with Q8. Then, I use `fct_reorder() `to reorder the factor(family_income) level, and I also put `coord_flip()`to avoid the messy of x names. 
 
 ```{r}
 
@@ -210,8 +195,7 @@ thanksmeals %>%
 
 ### 10. What are the most common pies, sides, and desserts?
 
-To count the most repeated values in many columns, we need to use `start_with()` & `gather()`.
-The former is to select the same few words in different columns, while the latter is to gather a set of column name in a type column and their values in another column. Besides,`str_remove()` function used to delete some characters in a string since I want to make them same type. (\d: numeric 0-9; \d+: more than one numeric, such as 11,12...)
+#### To count the most repeated values in many columns, we need to use `start_with()` & `gather()`. The former is to select the same few words in different columns, while the latter is to gather a set of column name in a type column and their values in another column. Besides,`str_remove()` function used to delete some characters in a string since I want to make them same type. (\d: numeric 0-9; \d+: more than one numeric, such as 11,12...)
 
 ```{r}
 
@@ -265,7 +249,7 @@ head(common_dessert,10) %>%
 
 ### 11. Present this information on a data viz
 
-
+#### 
 
 fct_lump: Lump together least/most common factor levels into "other"
 
@@ -299,7 +283,7 @@ common_pie %>%
 
 ### 12. How do the servings differ by income?
 
-In order to compare between family_income and main_dish, 
+#### In order to compare between family_income and main_dish, 
 write something not sure about this/try to think the kable suitable to the question
 
 ```{r}
@@ -321,7 +305,9 @@ head(servings_income,10) %>%
 
 ### 13. Present this information on a data viz
 
-write something -4 bloxplot
+#### write something -4 bloxplot
+
+Q6 choose
 
 ```{r}
 

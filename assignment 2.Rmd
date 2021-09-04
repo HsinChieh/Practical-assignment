@@ -29,7 +29,7 @@ library(forcats)
 
 ### Dataset
 
-#### This dataset is regarding a survey from 1,058 American respondents responses about what they eat on Thanksgiving in 2015. I have named this dataset to *thanksmeals*.
+#### This dataset is regarding a survey from 1,058 American respondents responses about what they eat on Thanksgiving in 2015. I have imported the dataset by using `read_csv()` and named this dataset to *thanksmeals*.
 
 ```{r}
 
@@ -52,7 +52,7 @@ head(thanksmeals, 10) %>% kable()
 ```
 ### 2. Use `fct_reorder` and `parse_number` functions to create a factor variable `family_income`
 
-#### This question requires us to transform the categorical (character) variables 'family_income' into factor variable. By using `class()` to check character,the next step is to use `parse_number(var_name)`function, which can remove any non-numeric characters before or after the first number. The syntax is **data %>% mutate(var_name = fct_reorder(var_name, parse_number(var_name)))**. Finally, we can use `class()` again and it convert to factor; we can use `skim()`to ckeck as well.
+#### This question requires us to transform the categorical (character) variables 'family_income' into factor variable. By using `class()` to check it is character,the next step is to use `parse_number(var_name)`function, which can remove any non-numeric characters before or after the first number. The syntax is **data %>% mutate(var_name = fct_reorder(var_name, parse_number(var_name)))**. Besides, I saved as a new dataset 'family_income'. Finally, we can use `class()` again to have a simple view and it convert to factor; we also can use `skim()`to ckeck as well.
 
 ```{r}
 
@@ -69,7 +69,7 @@ skim(family_income)
 
 ### 3. Generate the general statistics of the dataset using `summary()` and `skim()` function (2 mark).
 
-#### Both `summary()` and `skim()` function can see the summary statistics of the dataset. The difference I noticed is that`summary()` shows class and mode for every variable separately, and `skim()` shows the missing value and compares each variable together.
+#### Both `summary()` and `skim()` function can see the summary statistics of the dataset. The difference I noticed is that`summary()` shows class and mode for every variable separately, and it shows min, median, mean and max for 'id' because of numeric, while `skim()` shows the broad overview of the data frame, even every column with the missing value and also has a histogram.
 
 ```{r}
 
@@ -80,7 +80,7 @@ skim(thanksmeals)
 ```
 ### 4. What is the number of people who celebrate?
 
-#### By using `filter()`function, we can only filter the value we want. In the dataset, There are "Yes" and "No" in the variable of celebrate, so I put `filter(celebrate == "Yes")` and `count()` the number of celebrate.
+#### By using `filter()`function, we can only filter the value we want. In the dataset, There are "Yes" and "No" in the variable of celebrate, so I put `filter(celebrate == "Yes")` and `count()` the number of celebrate, and then we can get the result.
 
 ```{r}
 
@@ -93,24 +93,23 @@ thanksmeals %>%
 
 ### 5. What are categories and stats for each main dish served and the method it is prepared?
 
-#### I used `count()` and `filter()` to get the results. Firstly, I count the total number for each main_dish and main_prep. Then, I use filter to deselect value which are "na", "Other (please specify)" because I think this kind of values cannot belong to any count. 
+#### I used `count()` and `filter()` to get the result for this question. Firstly, I count the total number for each main_dish and main_prep and sort them in order. Then, I use filter to deselect values which belong "na", "Other (please specify)" and "I don't know" because I think this kind of values is meaningless in count number. Finally, I present the result I created with a table format.
 
 ```{r}
 
 thanksmeals %>% 
-  count(main_dish, main_prep, sort = TRUE) %>% 
   filter(!is.na(main_dish),
          !is.na(main_prep),
          !main_dish %in% c("Other (please specify)", "I don't know"),
-         !main_prep %in% c("Other (please specify)", "I don't know")) %>% 
+         !main_prep %in% c("Other (please specify)", "I don't know")) %>%
+  count(main_dish, main_prep, sort = TRUE) %>% 
   kable(caption = "Categories for Prepared Method")
-
 
 ```
 
 ### 6. Create a data viz showing this in the most evident way. Provide your own legend and use themes.
 
-#### From the result of Q5, there are three variables (main_dish, main_prep, n). I create bar chart to show the count of prepared method for each main dish since main prep= discrete and count number= continuous. 
+#### From the result of Q5, there are three variables (main_dish, main_prep, n). I create bar chart to show the count of prepared method for each main dish since main prep= discrete and count number= continuous. From the graph, we can see the baked method is the most popular and turkey is the most common in three types of methods. 
 
 
 ```{r}
@@ -120,8 +119,8 @@ thanksmeals %>%
          !is.na(main_dish),
          !main_dish %in% c("Other (please specify)", "I don't know"),
          !main_prep %in% c("Other (please specify)", "I don't know"))%>% 
-  count(main_dish, main_prep) %>% 
-  mutate(main_prep = fct_lump(main_prep, n=5),
+  count(main_dish, main_prep, sort = TRUE) %>% 
+  mutate(main_dish = fct_lump(main_dish, n=5),
          main_prep = fct_reorder(main_prep, n)) %>% 
   ggplot(aes(main_prep, n, fill = main_dish)) +
   geom_col() +
@@ -133,7 +132,7 @@ thanksmeals %>%
 
 ### 7. How many use cranberry sauce? How many use gravy?
 
-#### For gravy sauce, there are two types of values, so it is easy to use `filter()` and then count the number. For cranberry sauce, there are many types of values, such as other (please specify), homemade, canned and na; therefore, I used filter to deselect na values, but I keep other (please specify) because respondents put the answer in cranberry_other, which belong to the use of cranberry sauce. Then, I count the number and add all count.
+#### In this question, we want to know the quantity so we use `count()` function again. For gravy sauce, there are two types of values, so it is easy to use `filter()` and then count the number to get the result '892'. However, for cranberry sauce, there are many types of values, such as other (please specify), homemade, canned and na; therefore, I used filter to deselect na values, but I keep other (please specify) because respondents put the answer in cranberry_other, which belong to the use of cranberry sauce. Then, I count the number and add all count to get the result '828'.
 
 ```{r}
 
@@ -158,7 +157,7 @@ thanksmeals %>%
 
 ### 8. What is the distribution of those who celebrate across income ranges
 
-#### In this question, I need to count the variables of family_income with people celebrate. To get the results, I used `group_by()` to group celebrate first, used `filter()` to filter the variables I want, count the family_income and make them in order, and finally used`ungroup()` to avoid messing the dataset.
+#### In this question, I need to count the variables of family_income with people who celebrate. To get the results, I used `group_by()` to group celebrate firstly as well as used `filter()` to filter the variables I want, and finally count the family_income with sorting them in order and `ungroup()` to avoid messing the dataset. In the result, we know there are 166 people celebrate thanksgiving with total income of $25,000 to $49,999 among their family, and followed by $50,000 to $74,999 and $75,000 to $99,999 with both same unmber of 127 people.
 
 ```{r}
 
@@ -175,7 +174,7 @@ thanksmeals %>%
 
 ### 9. Present this information in the most evident way on the data viz.
 
-#### I want to create bar chart to show the count for different family income. Most steps at first are the same with Q8. Then, I use `fct_reorder() `to reorder the factor(family_income) level, and I also put `coord_flip()`to avoid the messy of x names. 
+#### I want to create bar chart to show the count for different family income. Most steps at first are the same with Q8. Then, I use `fct_reorder() `to reorder the factor(family_income) level, and I also put `coord_flip()`to avoid the messy of x names. In the graph, we can see the higer family income is $25,000 to $49,999.
 
 ```{r}
 
@@ -195,7 +194,7 @@ thanksmeals %>%
 
 ### 10. What are the most common pies, sides, and desserts?
 
-#### To count the most repeated values in many columns, we need to use `start_with()` & `gather()`. The former is to select the same few words in different columns, while the latter is to gather a set of column name in a type column and their values in another column. Besides,`str_remove()` function used to delete some characters in a string since I want to make them same type. (\d: numeric 0-9; \d+: more than one numeric, such as 11,12...)
+#### To count the most repeated values in many columns, we need to use `start_with()` & `gather()` functions. The former is to select the same few words in different columns, while the latter is to gather a set of column name in a type column and their values in another column. Besides, `str_remove()` function is used to delete some characters in a string since I want to make them same type. (\d: numeric 0-9; \d+: more than one numeric, such as 11,12...) For the result, I use `head()` to only show 10 rows and then use `kable()` to make it clear.
 
 ```{r}
 
@@ -212,7 +211,7 @@ common_pie <- thanksmeals %>%
   mutate(type = str_remove(type, "\\d+"))
 
 head(common_pie,10) %>% 
-  kable(caption = "Common Pie")
+  kable(caption = "Common Pie in Thanksgiving")
   
 #the most common side is mashed potatoes
 
@@ -228,7 +227,7 @@ common_side <- thanksmeals %>%
 
 
 head(common_side,10) %>% 
-  kable(caption = "Common Side")
+  kable(caption = "Common Side in Thanksgiving")
 
 #the most common dessert is ice cream
 
@@ -243,13 +242,13 @@ common_dessert <- thanksmeals %>%
   mutate(type = str_remove(type, "\\d+"))
 
 head(common_dessert,10) %>% 
-  kable(caption = "Common Dessert")
+  kable(caption = "Common Dessert in Thanksgiving")
 
 ```
 
 ### 11. Present this information on a data viz
 
-#### With `fct_lump()` function, we can limit how many categories we want to show by making other low values into a level called "other". I believe that bar chart can present well since there are one discrete variable and one continuous variable. 
+#### With `fct_lump()` function, we can limit how many categories we want to show by making other low values into a level called "other". I believe that bar chart can present well since there are one discrete variable and one continuous variable. From the graph, we can know the most common pie is pumpkin pie, the most common side is mashed potatoes, and the most common dessert is ice cream.  
 
 ```{r}
 
@@ -308,7 +307,7 @@ thanksmeals %>%
 
 ### 12. How do the servings differ by income?
 
-#### In order to compare between family_income and main_dish, I count the family income for each main dish by using `count()` as well as similar functions such as filter and group by, trying to deselect missing values.
+#### In order to compare between family_income and main_dish, I count the family income for each main dish by using `count()` as well as similar functions such as filter and group by, trying to deselect missing values. From the result, we can notice that turkey is the most main dish for most range of family income.
 
 ```{r}
 
@@ -349,8 +348,6 @@ servings_income %>%
   geom_col()+
   coord_flip()+
   labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 7:Bar Graph")
-
-
 
 ```
 

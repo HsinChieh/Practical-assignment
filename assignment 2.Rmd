@@ -145,14 +145,14 @@ thanksmeals %>%
   count(cranberry) %>% 
   select(n) %>% 
   summarise(cranberry_sauce = sum(n)) %>% 
-  kable(caption = "How many")
+  kable(caption = "The number of using cranberry sauce")
 
 #There are 892 people used gravy sauce.
 
 thanksmeals %>% 
   filter(gravy=="Yes") %>% 
   count(gravy) %>% 
-  kable(caption = "How many")
+  kable(caption = "The number of using gravy sauce")
 
 ```
 
@@ -323,7 +323,7 @@ servings_income <- thanksmeals %>%
   ungroup()
 
 head(servings_income,10) %>% 
-  kable(caption = "Comparison")
+  kable(caption = "Comparison between family_income and main_dish")
 
 ```
 
@@ -344,9 +344,8 @@ servings_income %>%
   labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 6:Bar Graph")
 
 servings_income %>% 
-  mutate(family_income = fct_lump( family_income, n=5),
-         main_dish  = fct_reorder(main_dish , n)) %>% 
-  ggplot(aes(main_dish ,n, fill=family_income))+
+  mutate(main_dish = fct_lump( main_dish, n=5)) %>% 
+  ggplot(aes(family_income, n, fill = main_dish))+
   geom_col()+
   coord_flip()+
   labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 7:Bar Graph")

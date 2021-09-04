@@ -249,42 +249,66 @@ head(common_dessert,10) %>%
 
 ### 11. Present this information on a data viz
 
-#### 
-
-fct_lump: Lump together least/most common factor levels into "other"
+#### With `fct_lump()` function, we can limit how many categories we want to show by making other low values into a level called "other". I believe that bar chart can present well since there are one discrete variable and one continuous variable. 
 
 ```{r}
 
-
-
-common_pie %>% 
-  mutate(value = fct_lump(value,n=5),
-         value = fct_reorder(value,n)) %>%
-  ggplot(aes(value,n))+
+thanksmeals %>% 
+  select(starts_with("pie")) %>% 
+  gather(type,value) %>% 
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)","I don't know")) %>% 
+  group_by(type) %>%
+  mutate(value = fct_lump(value, 5)) %>% 
+  count(value, sort = TRUE) %>% 
+  ungroup() %>% 
+  mutate(type = str_remove(type, "\\d+")) %>%
+  mutate(value = fct_reorder(value, n)) %>% 
+  ggplot(aes(value, n, fill=value))+
   geom_col()+
   coord_flip()+
-  theme_gray()
+  theme_gray()+
+  labs(x="Type of Pie", y="Number", title="The Most Common Pie in Thanksgiving", fill ="Types",caption = "Image 3:Bar Graph")
 
-common_pie %>% 
-  count(value=fct_lump(value,12), sort = TRUE) %>% 
-  mutate(value = fct_reorder(value,n)) %>% 
-  ggplot(aes(n,value))+
-  geom_col()
 
-common_pie %>% 
-  mutate(value = fct_lump(value, 12),
-    value = fct_reorder(value,n)) %>% 
-  ggplot(aes(type,value))+
-  geom_boxplot()
+thanksmeals %>% 
+  select(starts_with("side")) %>% 
+  gather(type,value) %>% 
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)","I don't know")) %>% 
+  group_by(type) %>%
+  mutate(value = fct_lump(value, 5)) %>% 
+  count(value, sort = TRUE) %>% 
+  ungroup() %>% 
+  mutate(type = str_remove(type, "\\d+")) %>%
+  mutate(value = fct_reorder(value, n)) %>% 
+  ggplot(aes(value, n, fill=value))+
+  geom_col()+
+  coord_flip()+
+  theme_gray()+
+  labs(x="Type of Side", y="Number", title="The Most Common Side in Thanksgiving", fill ="Types",caption = "Image 4:Bar Graph")
 
-#labs(x="Type of Pie", y="Number", title="The Most Common Pie in Thanksgiving", caption = "Image 3:Bar Graph")
-
+thanksmeals %>% 
+  select(starts_with("dessert")) %>% 
+  gather(type,value) %>% 
+  filter(!is.na(value),
+         !value %in% c("None", "Other (please specify)","I don't know")) %>% 
+  group_by(type) %>%
+  mutate(value = fct_lump(value, 5)) %>% 
+  count(value, sort = TRUE) %>% 
+  ungroup() %>% 
+  mutate(type = str_remove(type, "\\d+")) %>%
+  mutate(value = fct_reorder(value, n)) %>% 
+  ggplot(aes(value, n, fill=value))+
+  geom_col()+
+  coord_flip()+
+  theme_gray()+
+  labs(x="Type of Dessert", y="Number", title="The Most Common Dessert in Thanksgiving", fill ="Types",caption = "Image 5:Bar Graph")
 ```
 
 ### 12. How do the servings differ by income?
 
-#### In order to compare between family_income and main_dish, 
-write something not sure about this/try to think the kable suitable to the question
+#### In order to compare between family_income and main_dish, I count the family income for each main dish by using `count()` as well as similar functions such as filter and group by, trying to deselect missing values.
 
 ```{r}
 
@@ -305,36 +329,29 @@ head(servings_income,10) %>%
 
 ### 13. Present this information on a data viz
 
-#### write something -4 bloxplot
-
-Q6 choose
+#### To show the distribution for each main dish and family income, I use bar chart to present. Firstly, I have the new dataset named 'servings_income' created in Q12. Then, I use fuctions to limit categories and reorder factor level. After that, flip the x and y position after ggplot the data in order to make the name of x variables clear.
 
 ```{r}
-
-thanksmeals %>% 
-  select(main_dish,family_income) %>% 
-  filter(!is.na(main_dish),
-         !is.na(family_income),
-         !family_income %in% c("None", "Prefer not to answer")) %>%
-  group_by(main_dish) %>% 
-  arrange(family_income) %>% 
-  ungroup() %>% 
-  ggplot(aes(main_dish,family_income))+
-  geom_boxplot()
-
 
 servings_income %>% 
   group_by(main_dish) %>% 
   mutate(family_income = fct_reorder(family_income, n)) %>% 
-  arrange(family_income) %>% 
   ungroup() %>% 
   ggplot(aes(family_income,n, fill=main_dish))+
   geom_col()+
   coord_flip()+
-  facet_wrap(~main_dish)
+  facet_wrap(~main_dish)+
+  labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 6:Bar Graph")
+
+servings_income %>% 
+  mutate(family_income = fct_lump( family_income, n=5),
+         main_dish  = fct_reorder(main_dish , n)) %>% 
+  ggplot(aes(main_dish ,n, fill=family_income))+
+  geom_col()+
+  coord_flip()+
+  labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 7:Bar Graph")
 
 
-#labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", caption = "Image 4:Bar Graph")
 
 ```
 

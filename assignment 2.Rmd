@@ -13,6 +13,7 @@ library(knitr)
 library(skimr)
 library(ggplot2)
 library(forcats)
+library(dplyr)
 
 ```
 
@@ -24,7 +25,7 @@ library(forcats)
 
 ---
 
-![Hi! I am Hsin-Chieh!](images/img_01.jpeg)
+![](images/img_01.jpeg)
 ---
 
 ### Dataset
@@ -56,10 +57,16 @@ head(thanksmeals, 10) %>% kable()
 
 ```{r}
 
+# To check the class of family income
+
 class(thanksmeals$family_income)
+
+# To transform 'family_income' into factor variable
 
 family_income <- thanksmeals %>% 
   mutate(family_income = fct_reorder(family_income, parse_number(family_income)))
+
+# To ckeck if it is a factor
 
 class(family_income$family_income)
 
@@ -120,8 +127,7 @@ thanksmeals %>%
          !main_dish %in% c("Other (please specify)", "I don't know"),
          !main_prep %in% c("Other (please specify)", "I don't know"))%>% 
   count(main_dish, main_prep, sort = TRUE) %>% 
-  mutate(main_dish = fct_lump(main_dish, n=5),
-         main_prep = fct_reorder(main_prep, n)) %>% 
+  mutate(main_prep = fct_reorder(main_prep, n)) %>% 
   ggplot(aes(main_prep, n, fill = main_dish)) +
   geom_col() +
   coord_flip() +
@@ -136,7 +142,7 @@ thanksmeals %>%
 
 ```{r}
 
-#There are 828 people used cranberry sauce.
+# There are 828 people used cranberry sauce.
 
 thanksmeals %>% 
   filter(!is.na(cranberry),
@@ -146,7 +152,7 @@ thanksmeals %>%
   summarise(cranberry_sauce = sum(n)) %>% 
   kable(caption = "The number of using cranberry sauce")
 
-#There are 892 people used gravy sauce.
+# There are 892 people used gravy sauce.
 
 thanksmeals %>% 
   filter(gravy=="Yes") %>% 
@@ -198,7 +204,7 @@ thanksmeals %>%
 
 ```{r}
 
-#the most common pie is pumpkin pie
+# The most common pie is pumpkin pie.
 
 common_pie <- thanksmeals %>% 
   select(starts_with("pie")) %>% 
@@ -213,7 +219,7 @@ common_pie <- thanksmeals %>%
 head(common_pie,10) %>% 
   kable(caption = "Common Pie in Thanksgiving")
   
-#the most common side is mashed potatoes
+# The most common side is mashed potatoes.
 
 common_side <- thanksmeals %>% 
   select(starts_with("side")) %>% 
@@ -229,7 +235,7 @@ common_side <- thanksmeals %>%
 head(common_side,10) %>% 
   kable(caption = "Common Side in Thanksgiving")
 
-#the most common dessert is ice cream
+# The most common dessert is ice cream.
 
 common_dessert <- thanksmeals %>% 
   select(starts_with("dessert")) %>% 
@@ -248,61 +254,59 @@ head(common_dessert,10) %>%
 
 ### 11. Present this information on a data viz
 
-#### With `fct_lump()` function, we can limit how many categories we want to show by making other low values into a level called "other". I believe that bar chart can present well since there are one discrete variable and one continuous variable. From the graph, we can know the most common pie is pumpkin pie, the most common side is mashed potatoes, and the most common dessert is ice cream.  
+#### With `fct_lump()` function, we can limit how many categories we want to show by making other low values into a level called "other". I believe that bar chart can present well since there is one discrete variable. From the graph, we can know the most common pie is pumpkin pie, the most common side is mashed potatoes, and the most common dessert is ice cream.  
+
+#### We can see that the most common pie is pumpkin pie in the graph.
 
 ```{r}
 
-thanksmeals %>% 
+thanksmeals %>%   
   select(starts_with("pie")) %>% 
   gather(type,value) %>% 
   filter(!is.na(value),
          !value %in% c("None", "Other (please specify)","I don't know")) %>% 
-  group_by(type) %>%
   mutate(value = fct_lump(value, 5)) %>% 
-  count(value, sort = TRUE) %>% 
-  ungroup() %>% 
-  mutate(type = str_remove(type, "\\d+")) %>%
-  mutate(value = fct_reorder(value, n)) %>% 
-  ggplot(aes(value, n, fill=value))+
-  geom_col()+
+  ggplot(aes(fct_infreq (value)))+
+  geom_bar(fill="#339900")+
   coord_flip()+
   theme_gray()+
-  labs(x="Type of Pie", y="Number", title="The Most Common Pie in Thanksgiving", fill ="Types",caption = "Image 3:Bar Graph")
+  labs(x="Type of Pie", y="Number", title="The Most Common Pie in Thanksgiving", caption = "Image 3:Bar Graph")
 
+```
 
-thanksmeals %>% 
+#### Other low values combines into other, so it shows highest; however, the most common side is mashed potatoes.
+
+```{r}
+
+thanksmeals %>%   
   select(starts_with("side")) %>% 
   gather(type,value) %>% 
   filter(!is.na(value),
          !value %in% c("None", "Other (please specify)","I don't know")) %>% 
-  group_by(type) %>%
   mutate(value = fct_lump(value, 5)) %>% 
-  count(value, sort = TRUE) %>% 
-  ungroup() %>% 
-  mutate(type = str_remove(type, "\\d+")) %>%
-  mutate(value = fct_reorder(value, n)) %>% 
-  ggplot(aes(value, n, fill=value))+
-  geom_col()+
+  ggplot(aes(fct_infreq (value)))+
+  geom_bar(fill="#3399CC")+
   coord_flip()+
   theme_gray()+
-  labs(x="Type of Side", y="Number", title="The Most Common Side in Thanksgiving", fill ="Types",caption = "Image 4:Bar Graph")
+  labs(x="Type of Side", y="Number", title="The Most Common Side in Thanksgiving", caption = "Image 4:Bar Graph")
 
-thanksmeals %>% 
+```
+#### Other low values combines into other, so it shows highest; however, the most common dessert is ice cream.
+
+```{r}
+
+thanksmeals %>%   
   select(starts_with("dessert")) %>% 
   gather(type,value) %>% 
   filter(!is.na(value),
          !value %in% c("None", "Other (please specify)","I don't know")) %>% 
-  group_by(type) %>%
   mutate(value = fct_lump(value, 5)) %>% 
-  count(value, sort = TRUE) %>% 
-  ungroup() %>% 
-  mutate(type = str_remove(type, "\\d+")) %>%
-  mutate(value = fct_reorder(value, n)) %>% 
-  ggplot(aes(value, n, fill=value))+
-  geom_col()+
+  ggplot(aes(fct_infreq (value)))+
+  geom_bar(fill="#FF66FF")+
   coord_flip()+
   theme_gray()+
-  labs(x="Type of Dessert", y="Number", title="The Most Common Dessert in Thanksgiving", fill ="Types",caption = "Image 5:Bar Graph")
+  labs(x="Type of Dessert", y="Number", title="The Most Common Dessert in Thanksgiving",caption = "Image 5:Bar Graph")
+
 ```
 
 ### 12. How do the servings differ by income?
@@ -321,15 +325,17 @@ servings_income <- thanksmeals %>%
   count(main_dish, family_income, sort = TRUE) %>% 
   ungroup()
 
-head(servings_income,10) %>% 
+head(servings_income,11) %>% 
   kable(caption = "Comparison between family_income and main_dish")
 
 ```
 
 ### 13. Present this information on a data viz
 
-#### To show the distribution for each main dish and family income, I use bar chart to present. Firstly, I have the new dataset named 'servings_income' created in Q12. Then, I use fuctions to limit categories and reorder factor level. After that, flip the x and y position after ggplot the data in order to make the name of x variables clear.
+#### I present the result with three types of data viz for this question. To show the distribution for each main dish and family income, I use bar chart to present fot the first graph. I use fuctions to reorder factor level. After that, flip the x and y position after ggplot the data in order to make the name of x variables clear. In this graph, we can see there is a big gap between turkey and other main dish in the graph. in the second graph I created, we can see most people with family income range from $25,000 to $49,999 celebrate thanksgiving, and turkey is the most popular main dish among all range of family income. In the last graph, I created with different variable. I put main dish and family income in x and y (both are discrete), we can see the distribution with different size of dots representing different number. 
 
+
+#### There is a huge gap between turkey and other main dish with all range of family income.
 ```{r}
 
 servings_income %>% 
@@ -342,12 +348,41 @@ servings_income %>%
   facet_wrap(~main_dish)+
   labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 6:Bar Graph")
 
-servings_income %>% 
-  mutate(main_dish = fct_lump( main_dish, n=5)) %>% 
-  ggplot(aes(family_income, n, fill = main_dish))+
-  geom_col()+
+```
+
+#### We can see most people with family income range from $25,000 to $49,999 celebrate thanksgiving, and turkey is the most popular main dish among all range of family income.
+
+```{r}
+
+thanksmeals %>%
+  select(main_dish,family_income) %>% 
+  filter(!is.na(main_dish),
+         !is.na(family_income),
+         !main_dish %in% c("Other (please specify)", "I don't know"),
+         !family_income %in% c("None", "Prefer not to answer")) %>%
+  mutate(main_dish = fct_lump(main_dish, 3)) %>% 
+  ggplot(aes(fct_infreq(family_income), fill=main_dish))+
+  geom_bar()+
   coord_flip()+
   labs(x="Family Income", y="Count", title="The Comparison between Family Income and Main Dish", fill="Main Dish", caption = "Image 7:Bar Graph")
+
+```
+
+#### If I put main dish and family income in x and y (both are discrete), we can see the distribution with different size of dots representing different number. 
+
+```{r}
+
+thanksmeals %>%
+  select(main_dish,family_income) %>% 
+  filter(!is.na(main_dish),
+         !is.na(family_income),
+         !main_dish %in% c("Other (please specify)", "I don't know"),
+         !family_income %in% c("None", "Prefer not to answer")) %>%
+  mutate(main_dish = fct_lump( main_dish, n=5)) %>% 
+  ggplot(aes(fct_infreq(main_dish), family_income, color=family_income))+
+  geom_count()+
+  theme_bw()+
+  labs(x="Main Dish", y="Family Income", title="The Comparison between Family Income and Main Dish", color = "Income Range", caption = "Image 8:Count Graph")
 
 ```
 
